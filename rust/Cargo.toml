@@ -1,0 +1,13 @@
+[package]
+name = "advent-of-code-2015"
+version = "0.1.0"
+authors = ["Colin Harrington <colin@laelfrog.io>"]
+repository = "https://github.com/ColinHarrington/advent-of-code-2015"
+edition = "2021"
+
+[lib]
+bench = false
+
+[dependencies]
+aoc-runner = "0.3.0"
+aoc-runner-derive = "0.3.0"
