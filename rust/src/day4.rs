@@ -3,22 +3,14 @@ use aoc_runner_derive::aoc;
 #[aoc(day4, part1)]
 pub fn solve_part1(input: &str) -> u64 {
     (0u64..)
-        .into_iter()
-        .find(|i| match md5::compute(format!("{input}{i}")).0 {
-            [0, 0, third, ..] if third <= 15 => true,
-            _ => false,
-        })
+        .find(|i| matches!(md5::compute(format!("{input}{i}")).0, [0, 0, third, ..] if third <= 15))
         .unwrap()
 }
 
 #[aoc(day4, part2)]
 pub fn solve_part2(input: &str) -> u64 {
     (0u64..)
-        .into_iter()
-        .find(|i| match md5::compute(format!("{input}{i}")).0 {
-            [0, 0, 0, ..] => true,
-            _ => false,
-        })
+        .find(|i| matches!(md5::compute(format!("{input}{i}")).0, [0, 0, 0, ..]))
         .unwrap()
 }
 
