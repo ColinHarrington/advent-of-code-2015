@@ -3,7 +3,8 @@ use itertools::Itertools;
 
 #[aoc(day5, part1)]
 pub fn solve_part1(input: &str) -> usize {
-    input.lines()
+    input
+        .lines()
         .filter(at_least_3_vowels)
         .filter(duplicate_letters)
         .filter(not_restricted)
@@ -11,13 +12,13 @@ pub fn solve_part1(input: &str) -> usize {
 }
 
 fn at_least_3_vowels(text: &&str) -> bool {
-    text
-        .chars()
+    text.chars()
         .filter(|c| match c {
             'a' | 'e' | 'i' | 'o' | 'u' => true,
             _ => false,
         })
-        .count() >= 3
+        .count()
+        >= 3
 }
 
 fn duplicate_letters(text: &&str) -> bool {
@@ -25,8 +26,7 @@ fn duplicate_letters(text: &&str) -> bool {
 }
 
 fn not_restricted(text: &&str) -> bool {
-    text
-        .chars()
+    text.chars()
         .tuple_windows()
         .find(|&pair| match pair {
             ('a', 'b') | ('c', 'd') | ('p', 'q') | ('x', 'y') => true,
@@ -37,7 +37,6 @@ fn not_restricted(text: &&str) -> bool {
 
 #[cfg(test)]
 mod test {
-    use itertools::assert_equal;
     use crate::day5::{at_least_3_vowels, duplicate_letters, not_restricted, solve_part1};
 
     #[test]
@@ -61,9 +60,15 @@ mod test {
     }
     #[test]
     fn part1() {
-        let input = ["ugknbfddgicrmopn", "aaa", "jchzalrnumimnmhp", "haegwjzuvuyypxyu", "dvszwmarrgswjxmb"].join("\n");
+        let input = [
+            "ugknbfddgicrmopn",
+            "aaa",
+            "jchzalrnumimnmhp",
+            "haegwjzuvuyypxyu",
+            "dvszwmarrgswjxmb",
+        ]
+        .join("\n");
 
         assert_eq!(2, solve_part1(input.as_str()));
     }
-
 }
