@@ -10,9 +10,7 @@ use std::collections::HashMap;
 
 #[aoc_generator(day7)]
 fn parse_instructions(input: &str) -> Vec<Assignment> {
-    let (tail, defs) = assignments(input).unwrap();
-    assert_eq!("", tail);
-    defs
+    assignments(input).unwrap().1
 }
 
 #[aoc(day7, part1)]
@@ -28,6 +26,7 @@ pub fn solve_part1(assignments: &[Assignment]) -> u16 {
     let a = "a".to_string();
     computer.eval(&a, &mut registers)
 }
+
 #[aoc(day7, part2)]
 pub fn solve_part2(assignments: &[Assignment]) -> u16 {
     let computer = Computer {
