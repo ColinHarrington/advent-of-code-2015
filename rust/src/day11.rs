@@ -49,28 +49,32 @@ impl Iterator for Password {
 }
 
 fn increment(chars: &[char]) -> Vec<char> {
-    let mut increment = true;
-    let mut buffer: Vec<char> = vec![];
-    for &character in chars.iter().rev() {
-        if increment {
-            let (new_char, overflow) = increment_char(character);
-            increment = overflow;
-            buffer.push(new_char)
-        } else {
-            buffer.push(character)
-        }
-    }
-    if increment {
+    let (overflow, mut buffer) =
+        chars
+            .iter()
+            .rev()
+            .fold((true, vec![]), |(inc, mut buffer), &original| {
+                let (overflow, character) = if inc {
+                    match increment_char(original) {
+                        '{' => (true, 'a'),
+                        incremented => (false, incremented),
+                    }
+                } else {
+                    (false, original)
+                };
+                buffer.push(character);
+                (overflow, buffer)
+            });
+    if overflow {
         buffer.push('a');
     }
     buffer.into_iter().rev().collect_vec()
 }
 
-fn increment_char(character: char) -> (char, bool) {
+fn increment_char(character: char) -> char {
     match character {
-        'z' => ('a', true),
-        'i' | 'o' | 'l' => (char::from_u32(character as u32 + 2).unwrap(), false),
-        c => (char::from_u32(c as u32 + 1).unwrap(), false),
+        'i' | 'o' | 'l' => char::from_u32(character as u32 + 2).unwrap(),
+        c => char::from_u32(c as u32 + 1).unwrap(),
     }
 }
 
