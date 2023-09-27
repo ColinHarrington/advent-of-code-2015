@@ -14,7 +14,7 @@ fn parse_routes(input: &str) -> Vec<Route> {
 }
 
 #[aoc(day9, part1)]
-pub fn solve_part1(routes: &[Route]) -> usize {
+pub fn solve_part1(routes: &[Route]) -> u32 {
     let graph: UnGraphMap<&str, u32> = UnGraphMap::from_edges(routes.iter().map(|route| {
         (
             route.from.as_str().clone(),
@@ -23,22 +23,22 @@ pub fn solve_part1(routes: &[Route]) -> usize {
         )
     }));
 
-    graph
-        .nodes()
-        .permutations(8)
-        .fold(usize::MAX, |min: usize, scenario: Vec<&str>| {
+    graph.nodes().permutations(graph.node_count()).fold(
+        u32::MAX,
+        |min: u32, scenario: Vec<&str>| {
             min.min(
                 scenario
                     .iter()
                     .tuple_windows()
                     .map(|(&a, &b)| graph.edge_weight(a, b).unwrap())
-                    .sum::<u32>() as usize,
+                    .sum(),
             )
-        })
+        },
+    )
 }
 
 #[aoc(day9, part2)]
-pub fn solve_part2(routes: &[Route]) -> usize {
+pub fn solve_part2(routes: &[Route]) -> u32 {
     let graph: UnGraphMap<&str, u32> = UnGraphMap::from_edges(routes.iter().map(|route| {
         (
             route.from.as_str().clone(),
@@ -47,18 +47,18 @@ pub fn solve_part2(routes: &[Route]) -> usize {
         )
     }));
 
-    graph
-        .nodes()
-        .permutations(8)
-        .fold(usize::MIN, |acc: usize, scenario: Vec<&str>| {
+    graph.nodes().permutations(graph.node_count()).fold(
+        u32::MIN,
+        |acc: u32, scenario: Vec<&str>| {
             acc.max(
                 scenario
                     .iter()
                     .tuple_windows()
                     .map(|(&a, &b)| graph.edge_weight(a, b).unwrap())
-                    .sum::<u32>() as usize,
+                    .sum(),
             )
-        })
+        },
+    )
 }
 
 pub struct Route {
@@ -81,7 +81,23 @@ fn city_to_city(input: &str) -> IResult<&str, (String, String)> {
 
 #[cfg(test)]
 mod test {
-    use crate::day9::{city_to_city, route};
+    use crate::day9::{city_to_city, parse_routes, route, solve_part1, solve_part2};
+
+    const EXAMPLE: &str = r"London to Dublin = 464
+London to Belfast = 518
+Dublin to Belfast = 141";
+
+    #[test]
+    fn part1() {
+        let routes = parse_routes(EXAMPLE);
+        assert_eq!(605, solve_part1(&routes));
+    }
+
+    #[test]
+    fn part2() {
+        let routes = parse_routes(EXAMPLE);
+        assert_eq!(982, solve_part2(&routes));
+    }
 
     #[test]
     fn test_distance() {
