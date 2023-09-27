@@ -12,6 +12,7 @@ dependencies = [
  "md5",
  "nom",
  "petgraph",
+ "serde_json",
 ]
 
 [[package]]
