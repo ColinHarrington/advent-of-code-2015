@@ -22,6 +22,7 @@ impl Password {
             data: pass.chars().collect_vec(),
         }
     }
+
     fn increment(&mut self) {
         self.data = increment(&self.data);
     }
