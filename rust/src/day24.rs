@@ -16,39 +16,66 @@ fn packages(input: &str) -> IResult<&str, Vec<u64>> {
 
 #[aoc(day24, part1)]
 fn solve_part1(packages: &[u64]) -> u64 {
-    min_quantum_entanglement(3, packages)
+    min_quantum_entanglement(3, packages).unwrap()
 }
 
 #[aoc(day24, part2)]
 fn solve_part2(packages: &[u64]) -> u64 {
-    min_quantum_entanglement(4, packages)
+    min_quantum_entanglement(4, packages).unwrap()
 }
 
-fn min_quantum_entanglement(partitions: u64, weights: &[u64]) -> u64 {
+fn min_quantum_entanglement(partitions: u64, weights: &[u64]) -> Option<u64> {
     let total: u64 = weights.iter().sum();
     assert!(total % partitions == 0);
     let partition_weight: u64 = total / partitions;
 
-    (1..weights.len())
-        .find_map(|n| {
+    (1..weights.len()).find_map(|n| {
+        weights
+            .iter()
+            .combinations(n)
+            .filter(|combo| partition_weight == combo.iter().fold(0u64, |acc, &w| w.add(acc)))
+            .filter(|combo| can_partition(&remaining(combo, weights), partitions - 1))
+            .map(|combo| combo.into_iter().fold(1u64, |acc, w| w.mul(acc)))
+            .min()
+    })
+}
+
+fn can_partition(weights: &[u64], partitions: u64) -> bool {
+    let total: u64 = weights.iter().fold(0u64, |acc, w| w.add(acc));
+    let partition_weight = total / partitions;
+    total % partitions == 0
+        && (1..weights.len()).any(|n| {
             weights
                 .iter()
                 .combinations(n)
-                .filter(|combo| partition_weight == combo.iter().fold(0u64, |acc, &w| w.add(acc)))
-                .map(|combo| combo.into_iter().fold(1u64, |acc, w| w.mul(acc)))
-                .min()
+                .any(|p| p.iter().fold(0u64, |acc, w| w.add(acc)) == partition_weight)
         })
-        .unwrap()
+}
+
+fn remaining(combo: &Vec<&u64>, packages: &[u64]) -> Vec<u64> {
+    let mut remaining = packages.to_vec();
+    for &item in combo {
+        remaining.remove(remaining.iter().find_position(|&p| p == item).unwrap().0);
+    }
+    remaining
 }
 
 #[cfg(test)]
 mod test {
-    use crate::day24::{solve_part1, solve_part2};
+    use crate::day24::{can_partition, solve_part1, solve_part2};
 
     #[test]
     fn example() {
         let packages = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11];
         assert_eq!(99, solve_part1(&packages));
         assert_eq!(44, solve_part2(&packages));
+    }
+
+    #[test]
+    fn test_can_partition() {
+        let weights = [
+            2, 3, 5, 7, 13, 17, 19, 23, 29, 31, 37, 41, 43, 53, 59, 61, 67, 71, 73, 83, 89, 97, 101,
+        ];
+        assert_eq!(true, can_partition(&weights, 2))
     }
 }
