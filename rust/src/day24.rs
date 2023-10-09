@@ -34,9 +34,14 @@ fn min_quantum_entanglement(partitions: u64, weights: &[u64]) -> Option<u64> {
             .iter()
             .combinations(n)
             .filter(|combo| partition_weight == combo.iter().fold(0u64, |acc, &w| w.add(acc)))
-            .filter(|combo| can_partition(&remaining(combo, weights), partitions - 1))
-            .map(|combo| combo.into_iter().fold(1u64, |acc, w| w.mul(acc)))
-            .min()
+            .map(|combo| (combo.iter().fold(1u64, |acc, w| w.mul(acc)), combo))
+            .sorted_by_key(|(qe, _)| *qe)
+            .find_map(|(qe, combo)| {
+                match can_partition(&remaining(&combo, weights), partitions - 1) {
+                    true => Some(qe),
+                    false => None,
+                }
+            })
     })
 }
 
