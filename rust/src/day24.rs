@@ -36,25 +36,56 @@ fn min_quantum_entanglement(partitions: u64, weights: &[u64]) -> Option<u64> {
             .filter(|combo| partition_weight == combo.iter().fold(0u64, |acc, &w| w.add(acc)))
             .map(|combo| (combo.iter().fold(1u64, |acc, w| w.mul(acc)), combo))
             .sorted_by_key(|(qe, _)| *qe)
-            .find_map(|(qe, combo)| {
-                match can_partition(&remaining(&combo, weights), partitions - 1) {
+            .map(|(qe, combo)| (qe, remaining(&combo, weights)))
+            .find_map(
+                |(qe, remaining)| match can_partition(&remaining, partitions - 1) {
                     true => Some(qe),
                     false => None,
-                }
-            })
+                },
+            )
     })
 }
 
-fn can_partition(weights: &[u64], partitions: u64) -> bool {
-    let total: u64 = weights.iter().fold(0u64, |acc, w| w.add(acc));
-    let partition_weight = total / partitions;
+fn can_partition(weights: &Vec<u64>, partitions: u64) -> bool {
+    let total: u64 = weights.iter().sum();
     total % partitions == 0
-        && (1..weights.len()).any(|n| {
-            weights
-                .iter()
-                .combinations(n)
-                .any(|p| p.iter().fold(0u64, |acc, w| w.add(acc)) == partition_weight)
-        })
+        && backtrack(
+            weights,
+            0,
+            total / partitions,
+            0,
+            &mut vec![false; weights.len()],
+        )
+}
+fn backtrack(
+    weights: &[u64],
+    current: u64,
+    partition_weight: u64,
+    idx: usize,
+    excluded: &mut Vec<bool>,
+) -> bool {
+    if excluded.iter().all(|&b| b) {
+        true
+    } else {
+        for other_idx in idx..weights.len() {
+            if excluded[other_idx] || current + weights[other_idx] > partition_weight {
+                continue;
+            }
+            let next = (current + weights[other_idx]) % partition_weight;
+            excluded[other_idx] = true;
+            if backtrack(
+                weights,
+                next,
+                partition_weight,
+                if next == 0 { 0 } else { other_idx + 1 },
+                excluded,
+            ) {
+                return true;
+            }
+            excluded[other_idx] = false;
+        }
+        false
+    }
 }
 
 fn remaining(combo: &Vec<&u64>, packages: &[u64]) -> Vec<u64> {
@@ -81,6 +112,6 @@ mod test {
         let weights = [
             2, 3, 5, 7, 13, 17, 19, 23, 29, 31, 37, 41, 43, 53, 59, 61, 67, 71, 73, 83, 89, 97, 101,
         ];
-        assert_eq!(true, can_partition(&weights, 2))
+        assert_eq!(true, can_partition(weights.to_vec(), 2))
     }
 }
