@@ -110,7 +110,7 @@ inc a";
 
     #[test]
     fn parse_instructions() {
-        let (tail, instructions) = instructions(EXAMPLE).unwrap();
+        let instructions = instructions(EXAMPLE).unwrap().1;
         assert_eq!(4, instructions.len())
     }
     #[test]

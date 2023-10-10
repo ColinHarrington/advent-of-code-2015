@@ -110,8 +110,9 @@ mod test {
     #[test]
     fn test_can_partition() {
         let weights = [
-            2, 3, 5, 7, 13, 17, 19, 23, 29, 31, 37, 41, 43, 53, 59, 61, 67, 71, 73, 83, 89, 97, 101,
+            2u64, 3, 5, 7, 13, 17, 19, 23, 29, 31, 37, 41, 43, 53, 59, 61, 67, 71, 73, 83, 89, 97,
+            101,
         ];
-        assert_eq!(true, can_partition(weights.to_vec(), 2))
+        assert_eq!(true, can_partition(&weights.to_vec(), 2))
     }
 }
